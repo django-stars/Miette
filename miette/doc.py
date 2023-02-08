@@ -81,7 +81,7 @@ class DocReader(object):
                 length = size - len(data_buffer)
 
             if fc_f_compressed:
-                fc_fc /= 2
+                fc_fc //= 2
             else:
                 length *= 2
 
@@ -89,13 +89,16 @@ class DocReader(object):
             part = self.word_document.read(length)
             if not fc_f_compressed:
                 part = part.decode('utf-16')
+            else:
+                part = part.decode('cp1252')    # Python 2.x uses ASCII as a default encoding, but Python 3.3+ uses UTF-8 default encoding. Therefore we need to specify the cp1252 file encoding explicitly.
             data_buffer += str(part)
             self._position += len(part)
 
             if len(data_buffer) >= size:
                 break
 
-        return data_buffer[:size].encode('utf-8')
+        # return data_buffer[:size].encode('utf-8')     # comment-out: the Python 3.3+ string is already in UTF-8 format
+        return data_buffer[:size]
 
     def tell(self):
         """
